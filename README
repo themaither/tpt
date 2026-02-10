@@ -1,0 +1,21 @@
+My collection of small Perl scripts for text (and not only) processing.
+
+Currently only features lblmp, which is kinda a replacement for unix pipes.
+Just type anything you want and then if you want to process everything
+you written above just type ‘#!! your fancy processing command’. What you
+written will be passed to your fancy processing command through standart
+input, and anything retreived from standart output afterwards will replace
+you document.
+
+Example:
+
+    I want this
+    to be
+    cool.
+    #!! /usr/bin/sed s/cool/C00L/g
+
+Results in
+
+    I want this
+    to be
+    C00L.

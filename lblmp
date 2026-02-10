@@ -1,0 +1,153 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+
+my $VERSION = '0.2';
+
+#
+# Processing arguments
+#
+
+sub show_usage
+{
+  print <<EOF
+Usage: lblmp [OPTION]... [SCRIPT OPTION]...
+
+  -h, --help
+                  show this message.
+  -v, --version
+                  show program version.
+
+  -f, --from-file
+                  treat first SCRIPT OPTION as
+                  a script filename.
+
+  -F, --from-file-ignore-args, --shebang
+                  treat first SCRIPT OPTION as
+                  a script filename and treat
+                  successing arguments as
+                  SCRIPT OPTIONs.
+
+  -P, --execute-pattern
+                  set regular expression for
+                  command invocation.
+                  should contain one capture group.
+                  by default set to '^#!!\\s*(.+)\$'.
+
+  -Q, --query-pattern
+                  set regular expression for
+                  lblmp information query
+                  command.
+                  should contain one capture group.
+                  by default set to '^#!\\?\\s*(.+)\$'
+
+
+EOF
+}
+
+sub show_version
+{
+  print <<EOF
+lblmp $VERSION
+EOF
+}
+
+sub error
+{
+  print $0, ': ', shift, "\n";
+  # show_usage;
+  die;
+}
+
+my $execute_pattern = qr/^#!!\s*(.+)$/;
+my $query_pattern = qr/^#!\?\s*(.+)$/;
+
+{
+  my $help;
+  my $version;
+  my $from_file;
+
+  GetOptions (
+    'help|h' => \$help,
+    'version|v' => \$version,
+    'from-file|f' => \$from_file,
+    'from-file-ignore-args|shebang|F' => sub
+    {
+      my ($opt_name, $opt_value) = @_;
+      $from_file = 1;
+      die('!FINISH');
+    },
+    'execute-pattern|P=s' => \$execute_pattern,
+    'query-pattern|Q=s' => \$query_pattern
+  );
+  show_usage and exit if defined $help;
+  show_version and exit if defined $version;
+  if (defined $from_file)
+  {
+    my $file = shift or error "File not provided";
+    open(STDIN, '<', $file) or error "Error opening file \'$file\': $!";
+  }
+}
+
+#
+# Reading script args
+#
+
+my $args = '';
+my $env = '';
+
+while ($_ = shift)
+{
+  my $arg = "lblmp arg $_\n";
+  $args = "$args$arg";
+}
+
+while (my ($key, $value) = each %ENV)
+{
+  my $arg = "lblmp env $key $value\n";
+  $env = "$env$arg";
+}
+
+#
+# Doing actual work
+#
+
+my $acc = '';
+
+while (<STDIN>)
+{
+  if (/$execute_pattern/g)
+  {
+    $acc = `echo -n \'$acc\' | $1`;
+  }
+  elsif (/$query_pattern/g)
+  {
+    if ($1 eq 'version')
+    {
+      my $arg = "lblmp version $VERSION\n";
+      $acc = "$acc$arg";
+    }
+    elsif ($1 eq 'args')
+    {
+      $acc = "$acc$args";
+    }
+    elsif ($1 eq 'env')
+    {
+      $acc = "$acc$env"
+    }
+    else
+    {
+      error "Invalid query directive, possible values are version, args, env.";
+    }
+  }
+  else
+  {
+    $acc = "$acc$_";
+    $acc = "" if ($acc =~ /^#!.+\n$/)
+  }
+}
+
+print $acc;
