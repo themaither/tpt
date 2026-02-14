@@ -1,1 +1,1 @@
-dist_bin_SCRIPTS = lblmp unstruct
+dist_bin_SCRIPTS = lblmp unstruct multidoc

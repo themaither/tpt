@@ -1,0 +1,90 @@
+#!/usr/bin/perl
+# multidoc - writing from single file into multiple file
+#
+# Copyright (C) 2026 TheMaither <themaither@gmail.com>
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+use warnings;
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+
+my $VERSION = '0.2';
+
+#
+# Processing arguments
+#
+
+sub show_usage
+{
+  print <<EOF
+Usage: multidoc [OPTION]...
+
+  -h, --help
+                  show this message.
+  -v, --version
+                  show program version.
+
+EOF
+}
+
+sub show_version
+{
+  print <<EOF
+multidoc (Text Processing Tools) $VERSION
+Copyright (C) 2026 TheMaither <themaither\@gmail.com>.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+EOF
+}
+
+sub error
+{
+  print $0, ': ', shift, "\n";
+  die;
+}
+
+{
+  my $help;
+  my $version;
+
+  GetOptions (
+    'help|h' => \$help,
+    'version|v' => \$version,
+  );
+  show_usage and exit if defined $help;
+  show_version and exit if defined $version;
+}
+
+#
+# Doing actual work
+#
+
+my %fds;
+
+while (<STDIN>)
+{
+  /((?:\\ |[^ ])+)\s(.*)$/;
+  my $file = $1;
+  my $line = $2;
+  $file =~ s/\\ / /g;
+  if ($file =~ /^-$/)
+  {
+    print "$line\n";
+  }
+  else
+  {
+    if (!exists $fds{$file})
+    {
+      open $fds{$file}, ">", $file
+        or error "Failed when writing to file \'$file\': $!";
+    }
+
+    my $f = $fds{$file};
+    print $f "$line\n";
+  }
+}
