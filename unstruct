@@ -77,17 +77,12 @@ while (<STDIN>)
   chomp $_;
   if (/$start_pattern/)
   {
-    my @lines;
     for (;;)
     {
       $_ = <STDIN>;
       chomp $_;
       last if /$end_pattern/;
-      push @lines, $_;
-    }
-    for my $l (@lines)
-    {
-      print "$prev $l\n";
+      print "$prev $_\n";
     }
     $prev = undef;
   }
