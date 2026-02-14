@@ -5,7 +5,7 @@ use strict;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 
-my $VERSION = '0.2';
+my $VERSION = '0.1';
 
 #
 # Processing arguments
