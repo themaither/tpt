@@ -51,7 +51,7 @@ EOF
 sub show_version
 {
   print <<EOF
-lblmp $VERSION
+lblmp (Text Processing Tools) $VERSION
 EOF
 }
 

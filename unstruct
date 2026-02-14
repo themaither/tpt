@@ -38,7 +38,7 @@ EOF
 sub show_version
 {
   print <<EOF
-unstruct $VERSION
+unstruct (Text Processing Tools) $VERSION
 EOF
 }
 
