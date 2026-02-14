@@ -102,13 +102,13 @@ my $env = '';
 while ($_ = shift)
 {
   my $arg = "lblmp arg $_\n";
-  $args = "$args$arg";
+  $args .= $arg;
 }
 
 while (my ($key, $value) = each %ENV)
 {
   my $arg = "lblmp env $key $value\n";
-  $env = "$env$arg";
+  $env .= $arg;
 }
 
 #
@@ -131,15 +131,15 @@ while (<STDIN>)
     if ($1 eq 'version')
     {
       my $arg = "lblmp version $VERSION\n";
-      $acc = "$acc$arg";
+      $acc .= $arg;
     }
     elsif ($1 eq 'args')
     {
-      $acc = "$acc$args";
+      $acc .= $args;
     }
     elsif ($1 eq 'env')
     {
-      $acc = "$acc$env"
+      $acc .= $env
     }
     else
     {
@@ -148,7 +148,7 @@ while (<STDIN>)
   }
   else
   {
-    $acc = "$acc$_";
+    $acc .= $_;
     $acc = "" if ($acc =~ /^#!.+\n$/)
   }
 }
