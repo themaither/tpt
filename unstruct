@@ -1,0 +1,101 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+
+my $VERSION = '0.1';
+
+#
+# Processing arguments
+#
+
+sub show_usage
+{
+  print <<EOF
+Usage: unstruct [OPTION]...
+
+  -h, --help
+                  show this message.
+  -v, --version
+                  show program version.
+
+  -S, --start-pattern
+                  regular expression for
+                  struct start.
+                  default is '^{$'.
+
+
+  -E, --end-pattern
+                  set regular expression for
+                  struct end.
+                  default is '^}$'.
+
+EOF
+}
+
+sub show_version
+{
+  print <<EOF
+unstruct $VERSION
+EOF
+}
+
+sub error
+{
+  print $0, ': ', shift, "\n";
+  die;
+}
+
+my $start_pattern = qr/^{$/;
+my $end_pattern = qr/^}$/;
+
+{
+  my $help;
+  my $version;
+  my $from_file;
+
+  GetOptions (
+    'help|h' => \$help,
+    'version|v' => \$version,
+    'start-pattern|S=s' => \$start_pattern,
+    'end-pattern|E=s' => \$end_pattern
+  );
+  show_usage and exit if defined $help;
+  show_version and exit if defined $version;
+}
+
+#
+# Doing actual work
+#
+
+my $prev;
+
+while (<STDIN>)
+{
+  chomp $_;
+  if (/$start_pattern/)
+  {
+    my @lines;
+    for (;;)
+    {
+      $_ = <STDIN>;
+      chomp $_;
+      last if /$end_pattern/;
+      push @lines, $_;
+    }
+    for my $l (@lines)
+    {
+      print "$prev $l\n";
+    }
+    $prev = undef;
+  }
+  else
+  {
+    print "$prev\n" if $prev;
+    $prev = $_;
+  }
+}
+print "$prev\n" if $prev;
+

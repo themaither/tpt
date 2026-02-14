@@ -1,1 +1,1 @@
-dist_bin_SCRIPTS = lblmp
+dist_bin_SCRIPTS = lblmp unstruct
