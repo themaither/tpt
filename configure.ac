@@ -1,4 +1,4 @@
-AC_INIT([tpt], [0.2])
+AC_INIT([Text Processing Tools], [0.2])
 
 AM_SILENT_RULES([yes])
 AM_INIT_AUTOMAKE([foreign])
