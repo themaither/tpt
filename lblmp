@@ -121,7 +121,10 @@ while (<STDIN>)
 {
   if (/$execute_pattern/g)
   {
-    $acc = `echo -n \'$acc\' | $1`;
+    my $command = $1;
+    $acc =~ s/'/'\\''/g;
+    $acc = "\'$acc\'";
+    $acc = `echo -n $acc | $command`;
   }
   elsif (/$query_pattern/g)
   {
