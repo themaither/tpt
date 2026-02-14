@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# unstruct - convert structured blocks of text into plain lines
 #
 # Copyright (C) 2026 TheMaither <themaither@gmail.com>
 #
