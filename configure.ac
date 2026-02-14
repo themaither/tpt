@@ -1,4 +1,4 @@
-AC_INIT([lbl], [0.1])
+AC_INIT([tpt], [0.1])
 
 AM_SILENT_RULES([yes])
 AM_INIT_AUTOMAKE([foreign])
