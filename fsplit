@@ -1,0 +1,13 @@
+#!/usr/bin/awk -f
+
+BEGIN {
+  SC = 0;
+}
+
+!/%%/ {
+  print SC" "$0;
+}
+
+/%%/ {
+  SC++
+}
