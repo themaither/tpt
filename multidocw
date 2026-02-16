@@ -1,0 +1,110 @@
+#!/usr/bin/perl
+# multidocw - generate temporary files and execute command from one file
+#
+# Copyright (C) 2026 TheMaither <themaither@gmail.com>
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+use warnings;
+use strict;
+use Getopt::Long;
+use File::Temp qw/tempfile/;
+Getopt::Long::Configure ("bundling");
+
+my $VERSION = '0.2';
+
+#
+# Processing arguments
+#
+
+sub show_usage
+{
+  print <<EOF
+Usage: multidocw [OPTION]... -- <COMMAND>
+
+  -h, --help
+                  show this message.
+  -v, --version
+                  show program version.
+
+EOF
+}
+
+sub show_version
+{
+  print <<EOF
+multidocw (Text Processing Tools) $VERSION
+Copyright (C) 2026 TheMaither <themaither\@gmail.com>.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+EOF
+}
+
+sub error
+{
+  print $0, ': ', shift, "\n";
+  die;
+}
+
+{
+  my $help;
+  my $version;
+
+  GetOptions (
+    'help|h' => \$help,
+    'version|v' => \$version,
+  );
+  show_usage and exit if defined $help;
+  show_version and exit if defined $version;
+}
+
+#
+# Doing actual work
+#
+
+my %files;
+my $stdin = '';
+
+while (<STDIN>)
+{
+  /((?:\\ |[^ ])+)\s(.*)$/;
+  my $file = $1;
+  my $line = $2;
+  if ($file =~ /^-$/)
+  {
+    $stdin .= "$line\n";
+    next;
+  }
+  $files{$file} = '' if (!exists $files{$file});
+  $files{$file} .= "$line\n";
+}
+
+my @tmpfilenames;
+
+$_ = join ' ', @ARGV;
+
+for my $file (keys %files)
+{
+  my ($tmpfile, $tmpfilename) = tempfile
+    or die "multidocw: Failed to create temporary file: $!";
+
+  push @tmpfilenames, $tmpfilename;
+
+  print $tmpfile $files{$file};
+  s/\@$file\@/$tmpfilename/g;
+}
+
+my $command = $_;
+
+$stdin =~ s/'/'\\''/g;
+$stdin = "\'$stdin\'";
+
+print `echo -n $stdin | $command`;
+
+for my $tmpfile (@tmpfilenames)
+{
+  `rm '$tmpfile'`;
+}
