@@ -82,17 +82,27 @@ my $end_pattern = qr/^}$/;
 #
 
 my $prev;
+my $deepness = 0;
 
 while (<STDIN>)
 {
   chomp $_;
   if (/$start_pattern/)
   {
+    $deepness++;
     for (;;)
     {
       $_ = <STDIN>;
       chomp $_;
-      last if /$end_pattern/;
+      if (/$end_pattern/)
+      {
+        $deepness--;
+        last if $deepness == 0;
+      }
+      elsif (/$start_pattern/)
+      {
+        $deepness++;
+      }
       print "$prev $_\n";
     }
     $prev = undef;
