@@ -1,0 +1,96 @@
+#!/usr/bin/perl
+# workonw - operate on file inside multidoc
+#
+# Copyright (C) 2026 TheMaither <themaither@gmail.com>
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+use warnings;
+use strict;
+use Getopt::Long;
+
+my $VERSION = '0.2';
+
+#
+# Processing arguments
+#
+
+sub show_usage
+{
+  print <<EOF
+Usage: workonw [OPTION]... -- <FILENAME> <COMMAND>
+<FILENAME> means file inside multidoc, not multidoc itself.
+Multidoc is passed through standart input.
+
+  -h, --help
+                  show this message.
+  -v, --version
+                  show program version.
+
+EOF
+}
+
+sub show_version
+{
+  print <<EOF
+workonw (Text Processing Tools) $VERSION
+Copyright (C) 2026 TheMaither <themaither\@gmail.com>.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+EOF
+}
+
+sub error
+{
+  print $0, ': ', shift, "\n";
+  die;
+}
+
+{
+  my $help;
+  my $version;
+
+  GetOptions (
+    'help|h' => \$help,
+    'version|v' => \$version,
+  );
+  show_usage and exit if defined $help;
+  show_version and exit if defined $version;
+}
+
+my $target = shift or error "File inside multidoc was not provided";
+my $size = @ARGV;
+if ($size == 0)
+{
+  error "Command was not provided";
+}
+my $command = join ' ', @ARGV;
+
+#
+# Doing actual work
+#
+
+my $payload = '';
+
+while (<STDIN>)
+{
+  if (/^$target\s(.*)$/)
+  {
+    $payload .= "$1\n";
+  }
+  else
+  {
+    print $_;
+  }
+}
+$payload =~ s/'/'\\''/g;
+$payload = "\'$payload\'";
+$payload = `echo -n $payload | $command`;
+my @payload = split "\n", $payload;
+for my $line (@payload)
+{
+  print "$target $line\n";
+}

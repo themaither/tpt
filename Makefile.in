@@ -250,7 +250,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-dist_bin_SCRIPTS = lblmp unstruct multidoc fsplit multidocw
+dist_bin_SCRIPTS = lblmp unstruct multidoc fsplit multidocw workonw
 all: all-am
 
 .SUFFIXES:
