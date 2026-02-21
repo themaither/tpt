@@ -67,7 +67,14 @@ if ($size == 0)
 {
   error "Command was not provided";
 }
-my $command = join ' ', @ARGV;
+my @ARGV2;
+for my $field (@ARGV)
+{
+  $field =~ s/'/'\\''/g;
+  $field = "\'$field\'";
+  push @ARGV2, $field;
+}
+my $command = join ' ', @ARGV2;
 
 #
 # Doing actual work

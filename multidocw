@@ -84,7 +84,14 @@ while (<STDIN>)
 
 my @tmpfilenames;
 
-$_ = join ' ', @ARGV;
+my @ARGV2;
+for my $field (@ARGV)
+{
+  $field =~ s/'/'\\''/g;
+  $field = "\'$field\'";
+  push @ARGV2, $field;
+}
+$_ = join ' ', @ARGV2;
 
 for my $file (keys %files)
 {
