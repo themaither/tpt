@@ -1,0 +1,106 @@
+#!/usr/bin/perl
+# 2fw - embed script into input file
+#
+# Copyright (C) 2026 TheMaither <themaither@gmail.com>
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+use warnings;
+use strict;
+use Getopt::Long;
+use File::Temp qw/tempfile/;
+
+my $VERSION = '0.2';
+
+#
+# Processing arguments
+#
+
+sub show_usage
+{
+  print <<EOF
+Usage: 2fw [OPTION]... -- <COMMAND>
+
+  -h, --help
+                  show this message.
+  -v, --version
+                  show program version.
+
+EOF
+}
+
+sub show_version
+{
+  print <<EOF
+2fw (Text Processing Tools) $VERSION
+Copyright (C) 2026 TheMaither <themaither\@gmail.com>.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+EOF
+}
+
+sub error
+{
+  print $0, ': ', shift, "\n";
+  die;
+}
+
+{
+  my $help;
+  my $version;
+
+  GetOptions (
+    'help|h' => \$help,
+    'version|v' => \$version,
+  );
+  show_usage and exit if defined $help;
+  show_version and exit if defined $version;
+}
+
+my $size = @ARGV;
+if ($size == 0)
+{
+  error "Command was not provided";
+}
+
+#
+# Doing actual work
+#
+my $data = '';
+my $script = '';
+
+loop:
+{
+  if (not $_ = <STDIN>) {
+    error "File ended before %% reached.";
+  }
+  $data = "$data$_" and redo loop if $_ ne "%%\n";
+}
+
+while (<STDIN>)
+{
+  $script = "$script$_";
+}
+
+my ($file, $filename) = tempfile
+  or error "Failed to create temporary file: $!";
+
+print $file $script;
+close $file;
+
+my @ARGV2;
+for my $field (@ARGV)
+{
+  $field =~ s/\@script\@/$filename/g;
+  $field =~ s/'/'\\''/g;
+  $field = "\'$field\'";
+  push @ARGV2, $field;
+}
+
+my $command = join ' ', @ARGV2;
+
+print `echo -n \'$data\' | $command`;
+

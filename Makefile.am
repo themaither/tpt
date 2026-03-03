@@ -1,1 +1,1 @@
-dist_bin_SCRIPTS = lblmp unstruct multidoc fsplit multidocw workonw
+dist_bin_SCRIPTS = lblmp unstruct multidoc fsplit multidocw workonw 2fw
