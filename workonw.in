@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# multidocw - generate temporary files and execute command from one file
+#!@PERL@
+# workonw - operate on file inside multidoc
 #
 # Copyright (C) 2026 TheMaither <themaither@gmail.com>
 #
@@ -10,10 +10,8 @@
 use warnings;
 use strict;
 use Getopt::Long;
-use File::Temp qw/tempfile/;
-Getopt::Long::Configure ("bundling");
 
-my $VERSION = '0.2';
+my $VERSION = '@PACKAGE_VERSION@';
 
 #
 # Processing arguments
@@ -22,7 +20,9 @@ my $VERSION = '0.2';
 sub show_usage
 {
   print <<EOF
-Usage: multidocw [OPTION]... -- <COMMAND>
+Usage: workonw [OPTION]... -- <FILENAME> <COMMAND>
+<FILENAME> means file inside multidoc, not multidoc itself.
+Multidoc is passed through standart input.
 
   -h, --help
                   show this message.
@@ -35,7 +35,7 @@ EOF
 sub show_version
 {
   print <<EOF
-multidocw (Text Processing Tools) $VERSION
+workonw (@PACKAGE_NAME@) $VERSION
 Copyright (C) 2026 TheMaither <themaither\@gmail.com>.
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.
@@ -61,29 +61,12 @@ sub error
   show_version and exit if defined $version;
 }
 
-#
-# Doing actual work
-#
-
-my %files;
-my $stdin = '';
-
-while (<STDIN>)
+my $target = shift or error "File inside multidoc was not provided";
+my $size = @ARGV;
+if ($size == 0)
 {
-  /((?:\\ |[^ ])+)\s(.*)$/;
-  my $file = $1;
-  my $line = $2;
-  if ($file =~ /^-$/)
-  {
-    $stdin .= "$line\n";
-    next;
-  }
-  $files{$file} = '' if (!exists $files{$file});
-  $files{$file} .= "$line\n";
+  error "Command was not provided";
 }
-
-my @tmpfilenames;
-
 my @ARGV2;
 for my $field (@ARGV)
 {
@@ -91,27 +74,30 @@ for my $field (@ARGV)
   $field = "\'$field\'";
   push @ARGV2, $field;
 }
-$_ = join ' ', @ARGV2;
+my $command = join ' ', @ARGV2;
 
-for my $file (keys %files)
+#
+# Doing actual work
+#
+
+my $payload = '';
+
+while (<STDIN>)
 {
-  my ($tmpfile, $tmpfilename) = tempfile
-    or die "multidocw: Failed to create temporary file: $!";
-
-  push @tmpfilenames, $tmpfilename;
-
-  print $tmpfile $files{$file};
-  s/\@$file\@/$tmpfilename/g;
+  if (/^$target\s(.*)$/)
+  {
+    $payload .= "$1\n";
+  }
+  else
+  {
+    print $_;
+  }
 }
-
-my $command = $_;
-
-$stdin =~ s/'/'\\''/g;
-$stdin = "\'$stdin\'";
-
-print `echo -n $stdin | $command`;
-
-for my $tmpfile (@tmpfilenames)
+$payload =~ s/'/'\\''/g;
+$payload = "\'$payload\'";
+$payload = `echo -n $payload | $command`;
+my @payload = split "\n", $payload;
+for my $line (@payload)
 {
-  `rm '$tmpfile'`;
+  print "$target $line\n";
 }

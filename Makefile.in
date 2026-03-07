@@ -98,7 +98,8 @@ DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = lblmp unstruct multidoc fsplit multidocw workonw \
+	2fw
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -148,8 +149,11 @@ am__can_run_installinfo = \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
-am__DIST_COMMON = $(srcdir)/Makefile.in AUTHORS COPYING INSTALL README \
-	depcomp install-sh missing
+am__DIST_COMMON = $(srcdir)/2fw.in $(srcdir)/Makefile.in \
+	$(srcdir)/fsplit.in $(srcdir)/lblmp.in $(srcdir)/multidoc.in \
+	$(srcdir)/multidocw.in $(srcdir)/unstruct.in \
+	$(srcdir)/workonw.in AUTHORS COPYING INSTALL README depcomp \
+	install-sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -204,6 +208,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PERL = @PERL@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -287,6 +292,20 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
+lblmp: $(top_builddir)/config.status $(srcdir)/lblmp.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+unstruct: $(top_builddir)/config.status $(srcdir)/unstruct.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+multidoc: $(top_builddir)/config.status $(srcdir)/multidoc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+fsplit: $(top_builddir)/config.status $(srcdir)/fsplit.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+multidocw: $(top_builddir)/config.status $(srcdir)/multidocw.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+workonw: $(top_builddir)/config.status $(srcdir)/workonw.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+2fw: $(top_builddir)/config.status $(srcdir)/2fw.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
 install-dist_binSCRIPTS: $(dist_bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_bin_SCRIPTS)'; test -n "$(bindir)" || list=; \

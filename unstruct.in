@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!@PERL@
 # unstruct - convert structured blocks of text into plain lines
 #
 # Copyright (C) 2026 TheMaither <themaither@gmail.com>
@@ -12,7 +12,7 @@ use strict;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 
-my $VERSION = '0.2';
+my $VERSION = '@PACKAGE_VERSION@';
 
 #
 # Processing arguments
@@ -45,7 +45,7 @@ EOF
 sub show_version
 {
   print <<EOF
-unstruct (Text Processing Tools) $VERSION
+unstruct (@PACKAGE_NAME@) $VERSION
 Copyright (C) 2026 TheMaither <themaither\@gmail.com>.
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.

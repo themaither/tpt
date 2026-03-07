@@ -1,18 +1,18 @@
-#!/usr/bin/perl
+#!@PERL@
 # lblmp - process document with inline command statements
 #
 # Copyright (C) 2026 TheMaither <themaither@gmail.com>
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 use warnings;
 use strict;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 
-my $VERSION = '0.2';
+my $VERSION = '@PACKAGE_VERSION@';
 
 #
 # Processing arguments
@@ -58,7 +58,7 @@ EOF
 sub show_version
 {
   print <<EOF
-lblmp (Text Processing Tools) $VERSION
+lblmp (@PACKAGE_NAME@) $VERSION
 Copyright (C) 2026 TheMaither <themaither\@gmail.com>.
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.

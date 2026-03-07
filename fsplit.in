@@ -1,4 +1,4 @@
-#!/usr/bin/awk -f
+#!@AWK@ -f
 
 BEGIN {
   SC = 0;
