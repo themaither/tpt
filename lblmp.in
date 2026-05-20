@@ -141,7 +141,10 @@ while ($_ = readline $filehandle)
     $acc =~ s/'/'\\''/g;
     $acc = "\'$acc\'";
     $acc = `echo -n $acc | $command`;
-    die unless defined $acc;
+    if ($? != 0)
+    {
+      error "Command '$command' exited with code: $?";
+    }
   }
   elsif (/$query_pattern/g)
   {
