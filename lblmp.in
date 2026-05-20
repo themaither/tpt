@@ -74,7 +74,7 @@ sub error
 }
 
 my $execute_pattern = qr/^#!!\s*(.+)$/;
-my $query_pattern = qr/^#!\?\s*(.+)$/;
+my $command_pattern = qr/^#!(.+)$/;
 my $filehandle;
 {
   my $help;
@@ -91,8 +91,6 @@ my $filehandle;
       $from_file = 1;
       die('!FINISH');
     },
-    'execute-pattern|P=s' => \$execute_pattern,
-    'query-pattern|Q=s' => \$query_pattern
   );
   show_usage and exit if defined $help;
   show_version and exit if defined $version;
@@ -132,10 +130,17 @@ while (my ($key, $value) = each %ENV)
 #
 
 my $acc = '';
+my $lc = 0;
 
 while ($_ = readline $filehandle)
 {
-  if (/$execute_pattern/g)
+  ++$lc;
+
+  if (/^#!.+\n$/ && $lc == 1)
+  {
+    next;
+  }
+  elsif (/$execute_pattern/g)
   {
     my $command = $1;
     $acc =~ s/'/'\\''/g;
@@ -146,7 +151,7 @@ while ($_ = readline $filehandle)
       error "Command '$command' exited with code: $?";
     }
   }
-  elsif (/$query_pattern/g)
+  elsif (/$command_pattern/g)
   {
     if ($1 eq 'version')
     {
@@ -170,13 +175,12 @@ while ($_ = readline $filehandle)
     }
     else
     {
-      error "Invalid query directive, possible values are version, args, env.";
+      error "Invalid command, possible commands: '!', 'version', 'args', 'env', 'user'";
     }
   }
   else
   {
     $acc .= $_;
-    $acc = "" if ($acc =~ /^#!.+\n$/)
   }
 }
 
