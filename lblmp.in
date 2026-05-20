@@ -75,7 +75,7 @@ sub error
 
 my $execute_pattern = qr/^#!!\s*(.+)$/;
 my $query_pattern = qr/^#!\?\s*(.+)$/;
-
+my $filehandle;
 {
   my $help;
   my $version;
@@ -99,8 +99,13 @@ my $query_pattern = qr/^#!\?\s*(.+)$/;
   if (defined $from_file)
   {
     my $file = shift or error "File not provided";
-    open(STDIN, '<', $file) or error "Error opening file \'$file\': $!";
+    open($filehandle, '<', $file) or error "Error opening file \'$file\': $!";
   }
+}
+
+unless (defined $filehandle)
+{
+  open($filehandle, '<&STDIN');
 }
 
 #
@@ -128,7 +133,7 @@ while (my ($key, $value) = each %ENV)
 
 my $acc = '';
 
-while (<STDIN>)
+while ($_ = readline $filehandle)
 {
   if (/$execute_pattern/g)
   {
@@ -136,6 +141,7 @@ while (<STDIN>)
     $acc =~ s/'/'\\''/g;
     $acc = "\'$acc\'";
     $acc = `echo -n $acc | $command`;
+    die unless defined $acc;
   }
   elsif (/$query_pattern/g)
   {
@@ -151,6 +157,13 @@ while (<STDIN>)
     elsif ($1 eq 'env')
     {
       $acc .= $env
+    }
+    elsif ($1 eq 'user')
+    {
+      while (<STDIN>)
+      {
+        $acc .= $_;
+      }
     }
     else
     {
